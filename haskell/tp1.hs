@@ -14,10 +14,10 @@ instance Show Tarea where
 -- Ejercicio 1
 
 -- recTarea
-recTarea :: (String -> Int -> c) -> (Tarea -> Tarea -> c -> c -> c) -> (Tarea -> Tarea -> Int -> c -> c -> c) -> Tarea -> c
+recTarea :: (String -> Int -> c) -> (Tarea -> Tarea -> c -> c -> c) -> (Tarea -> Tarea -> c -> c -> Int-> c) -> Tarea -> c
 recTarea recBasica recIndependiente recDependeDe tarea  = case tarea of Basica a b -> recBasica a b 
                                                                         Independientes t1 t2 -> recIndependiente t1 t2 (rec t1) (rec t2)
-                                                                        DependeDe t1 t2 a -> recDependeDe t1 t2 a (rec t1) (rec t2)
+                                                                        DependeDe t1 t2 a -> recDependeDe t1 t2 (rec t1) (rec t2) a
                                  where rec = recTarea recBasica recIndependiente recDependeDe           
 
 
@@ -31,32 +31,44 @@ foldTarea fBasica fIndependiente fDependeDe tarea = case tarea of Basica a b -> 
 -- Ejercicio 2
 
 -- cantidadDeTareasBasicas
-cantidadDeTareasBasicas = undefined
+cantidadDeTareasBasicas :: [Tarea] -> Int
+cantidadDeTareasBasicas = foldr (\n rec -> cantidadTareasB (n) + rec) 0
+
+cantidadTareasB :: Tarea -> Int
+cantidadTareasB = foldTarea (\s n -> 1) (\t1 t2 -> t1 + t2) (\t1 t2 n -> t1 + t2) 
 
 -- cantidadMaximaDeHoras
-cantidadMaximaDeHoras = undefined
+cantidadMaximaDeHoras :: [Tarea] -> Int
+cantidadMaximaDeHoras = foldr(\n rec -> cantidadMaxima(n) + rec ) 0
 
+cantidadMaxima :: Tarea -> Int
+cantidadMaxima = foldTarea (\s n -> n) (\t1 t2 -> t1 + t2) (\t1 t2 n -> t1 + t2 + n) 
 -- tareasMasLargas
-tareasMasLargas = undefined
-
+tareasMasLargas :: Int -> [Tarea] -> [Tarea]
+tareasMasLargas h = filter (\x -> h < cantidadMaxima x) 
 -- Ejercicio 3
 
 -- chauListas
-chauListas = undefined
+chauListas :: [Tarea] -> Tarea
+chauListas xs = foldr1(\n rec -> (Independientes n rec)) xs
 
 -- Ejercicio 4
 
 -- tareasBasicas
-tareasBasicas = undefined
+tareasBasicas :: Tarea -> [Tarea]
+tareasBasicas = foldTarea (\x n-> [Basica x n]) (\t1 t2-> t1++t2) (\t1 t2 n -> t1++t2) 
 
 -- esSubTareaDe
-esSubTareaDe = undefined
+esSubTareaDe :: String -> Tarea -> Bool
+esSubTareaDe s = foldTarea(\x n-> s == x)(\t1 t2 -> t1 || t2) (\t1 t2 h -> t1 || t2)
 
 -- tareasBasicasIniciales
-tareasBasicasIniciales = undefined
+tareasBasicasIniciales :: Tarea -> [Tarea]
+tareasBasicasIniciales = foldTarea (\x n-> [Basica x n]) (\t1 t2-> t1++t2) (\t1 t2 n -> t2)
 
 -- tareasBasicasQueDependenDe
-tareasBasicasQueDependenDe = undefined
+tareasBasicasQueDependenDe :: String -> Tarea -> [Tarea]
+tareasBasicasQueDependenDe n = recTarea (\x s -> []) (\t1 t2 rec1 rec2 -> rec1 ++ rec2) (\t1 t2 rec1 rec2 h-> if (esSubTareaDe n t2) then (tareasBasicas t1) else []) 
 
 -- Ejercicio 5
 
@@ -74,23 +86,25 @@ pasos = undefined
 main :: IO Counts
 main = do runTestTT allTests
 
-allTests = test [
-  "ejercicio1" ~: testsEj1
-  --"ejercicio2" ~: testsEj2,
-  --"ejercicio3" ~: testsEj3,
-  --"ejercicio4" ~: testsEj4,
- -- "ejercicio5" ~: testsEj5,
- -- "ejercicio6" ~: testsEj6
-  ]
-
 tarea1 = Basica "a" 3
 tarea2 = Basica "b" 1
 tarea3 = Basica "c" 1
 tarea4 = Basica "d" 2
 tarea5 = DependeDe (Independientes tarea2 tarea3) tarea4 2
+tarea6 = DependeDe tarea2 tarea4 2
 lista1 = [tarea1]
 lista2 = [tarea2,tarea3,tarea4]
 lista3 = [tarea1,tarea5]
+
+allTests = test [
+    "ejercicio1" ~: testsEj1,
+    "ejercicio2" ~: testsEj2,
+    "ejercicio3" ~: testsEj3,
+    "ejercicio4" ~: testsEj4
+ -- "ejercicio5" ~: testsEj5,
+ -- "ejercicio6" ~: testsEj6
+ ]
+
 
 sumas1 :: [LuzMagica Int]
 sumas1 = ((+1):sumas1)
@@ -122,10 +136,14 @@ testsEj4 = test [
   True ~=? esSubTareaDe "b" tarea5,
   [tarea1] ~=? tareasBasicasIniciales tarea1,
   [tarea4] ~=? tareasBasicasIniciales tarea5,
+  [] ~=? tareasBasicasQueDependenDe "b" tarea2,
+  [] ~=? tareasBasicasQueDependenDe "b" tarea6, --lo hicimos nosotros 
+  [tarea2] ~=? tareasBasicasQueDependenDe "d" tarea6,
   [] ~=? tareasBasicasQueDependenDe "b" tarea5,
   [tarea2,tarea3] ~=? tareasBasicasQueDependenDe "d" tarea5
   ]
 
+{--
 testsEj5 = test [
   "a" ~=? cuelloDeBotella tarea1,
   "d" ~=? cuelloDeBotella tarea5
@@ -135,3 +153,5 @@ testsEj6 = test [
   5 ~=? pasos 10 sumas1 5,
   30 ~=? pasos 60 sumas123 0
   ]
+
+-}
