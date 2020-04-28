@@ -14,11 +14,20 @@ instance Show Tarea where
 -- Ejercicio 1
 
 -- recTarea
-recTarea = undefined
+recTarea :: (String -> Int -> c) -> (Tarea -> Tarea -> c -> c -> c) -> (Tarea -> Tarea -> Int -> c -> c -> c) -> Tarea -> c
+recTarea recBasica recIndependiente recDependeDe tarea  = case tarea of Basica a b -> recBasica a b 
+                                                                        Independientes t1 t2 -> recIndependiente t1 t2 (rec t1) (rec t2)
+                                                                        DependeDe t1 t2 a -> recDependeDe t1 t2 a (rec t1) (rec t2)
+                                 where rec = recTarea recBasica recIndependiente recDependeDe           
+
+
 
 -- foldTarea
-foldTarea = undefined
-
+foldTarea :: (String -> Int -> c) -> (c -> c -> c) -> (c -> c -> Int -> c) -> Tarea -> c
+foldTarea fBasica fIndependiente fDependeDe tarea = case tarea of Basica a b -> fBasica a b
+                                                                  Independientes t1 t2 -> fIndependiente (rec t1)(rec t2)
+                                                                  DependeDe t1 t2 a -> fDependeDe (rec t1)(rec t2) a
+                                 where rec = foldTarea fBasica fIndependiente fDependeDe
 -- Ejercicio 2
 
 -- cantidadDeTareasBasicas
@@ -66,12 +75,12 @@ main :: IO Counts
 main = do runTestTT allTests
 
 allTests = test [
-  "ejercicio1" ~: testsEj1,
-  "ejercicio2" ~: testsEj2,
-  "ejercicio3" ~: testsEj3,
-  "ejercicio4" ~: testsEj4,
-  "ejercicio5" ~: testsEj5,
-  "ejercicio6" ~: testsEj6
+  "ejercicio1" ~: testsEj1
+  --"ejercicio2" ~: testsEj2,
+  --"ejercicio3" ~: testsEj3,
+  --"ejercicio4" ~: testsEj4,
+ -- "ejercicio5" ~: testsEj5,
+ -- "ejercicio6" ~: testsEj6
   ]
 
 tarea1 = Basica "a" 3
