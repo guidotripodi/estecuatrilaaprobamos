@@ -73,7 +73,17 @@ tareasBasicasQueDependenDe n = recTarea (\x s -> []) (\t1 t2 rec1 rec2 -> rec1 +
 -- Ejercicio 5
 
 -- cuelloDeBotella
-cuelloDeBotella = undefined
+cuelloDeBotella :: Tarea -> String
+cuelloDeBotella t1 =  nombre (fst (head (sortBy (\x y -> compare (snd y) (snd x)) (listaDependientesTupla t1))))
+--
+listaDependientesTupla :: Tarea -> [(Tarea, Int)]
+listaDependientesTupla t1 = map (\x-> (x, length ( tareasBasicasQueDependenDe (nombre x) t1))) (tareasBasicas t1)
+
+
+nombre :: Tarea -> String
+nombre tarea = case tarea of Basica a b -> a
+                             Independientes t1 t2 -> []
+                             DependeDe t1 t2 a -> []
 
 -- Ejercicio 6
 
@@ -100,8 +110,8 @@ allTests = test [
     "ejercicio1" ~: testsEj1,
     "ejercicio2" ~: testsEj2,
     "ejercicio3" ~: testsEj3,
-    "ejercicio4" ~: testsEj4
- -- "ejercicio5" ~: testsEj5,
+    "ejercicio4" ~: testsEj4,
+    "ejercicio5" ~: testsEj5
  -- "ejercicio6" ~: testsEj6
  ]
 
@@ -143,12 +153,12 @@ testsEj4 = test [
   [tarea2,tarea3] ~=? tareasBasicasQueDependenDe "d" tarea5
   ]
 
-{--
 testsEj5 = test [
   "a" ~=? cuelloDeBotella tarea1,
   "d" ~=? cuelloDeBotella tarea5
   ]
 
+{--
 testsEj6 = test [
   5 ~=? pasos 10 sumas1 5,
   30 ~=? pasos 60 sumas123 0
