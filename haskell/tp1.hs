@@ -90,7 +90,15 @@ nombre tarea = case tarea of Basica a b -> a
 type LuzMagica a = (a -> a)
 
 -- pasos
-pasos = undefined
+pasos :: a -> [LuzMagica] -> a -> Int
+pasos zf xs zi = takeWhile (/=zf) (foldl (flip ($)) zi xs   
+
+--evaluarListaMagicaN :: Int -> [LuzMagica a] -> a -> a
+--evaluarListaMagicaN n xs i = evaluarListaMagica (take n xs) i
+
+--evaluarListaMagica :: [LuzMagica a] -> a -> a
+--evaluarListaMagica xs i = foldl (flip ($)) i xs
+
 
 -- Tests
 main :: IO Counts
@@ -158,10 +166,8 @@ testsEj5 = test [
   "d" ~=? cuelloDeBotella tarea5
   ]
 
-{--
+
 testsEj6 = test [
   5 ~=? pasos 10 sumas1 5,
   30 ~=? pasos 60 sumas123 0
   ]
-
--}
