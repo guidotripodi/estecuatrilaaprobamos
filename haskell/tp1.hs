@@ -123,6 +123,8 @@ sumas1 :: [LuzMagica Int]
 sumas1 = ((+1):sumas1)
 sumas123 :: [LuzMagica Int]
 sumas123 = ((+1):((+2):((+3):sumas123)))
+sumas3 :: [LuzMagica Int]
+sumas3 = [(+1),(+2)]
 
 testsEj1 = test [
   "a" ~=? recTarea (\n h -> n) (\t1 t2 s1 s2 -> s1) (\t1 t2 s1 s2 h -> s1) tarea1,
@@ -164,5 +166,7 @@ testsEj5 = test [
 
 testsEj6 = test [
   5 ~=? pasos 10 sumas1 5,
+  2 ~=? pasos 10 sumas3 7,
+  1 ~=? pasos 2 sumas1 1,
   30 ~=? pasos 60 sumas123 0
   ]
