@@ -90,15 +90,9 @@ nombre tarea = case tarea of Basica a b -> a
 type LuzMagica a = (a -> a)
 
 -- pasos
-pasos :: (Eq a) => a -> a -> [(a -> a)] -> Int
-pasos zi zf xs = length( takeWhile (/=zf) (foldl g [zi] xs))
-                        where g = (\ys f -> ys ++ [f (last ys)])
-
---evaluarListaMagicaN :: Int -> [LuzMagica a] -> a -> a
---evaluarListaMagicaN n xs i = evaluarListaMagica (take n xs) i
-
---evaluarListaMagica :: [LuzMagica a] -> a -> a
---evaluarListaMagica xs i = foldl (flip ($)) i xs
+pasos :: (Eq a) => a -> [(a -> a)] -> a -> Int
+pasos zf xs zi = length(takeWhile (/=zf)  [ f n | n <- [0..] ]) 
+                        where f = \n -> foldl (\x fi -> fi $x) zi (take n xs)
 
 
 -- Tests
