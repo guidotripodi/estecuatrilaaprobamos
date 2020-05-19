@@ -1,0 +1,123 @@
+* La idea del taller es programar en Haskell el algoritmo de inferencia visto en clase.
+* Gran parte del algoritmo y las estructuras necesarias ya están implementadas en los archivos auxiliares.
+* La clase no hace un repaso formal del algoritmo, sólo se limita a ver cómo están implementadas las cosas en Haskell y a enunciar la consigna.
+
+Slides:
+
+(1) Algoritmo de Inferencia
+  Repaso del algoritmo. Se supone que ya lo vieron así que se pasa rápido.
+  Hay algunos ejemplos de prueba.
+
+El resto de las diapositivas explica cómo están implementadas en Haskell las estructuras auxiliares para implementar el algoritmo.
+Muchas contienen un globo titulado "en Haskell" que muestran cómo está implementado lo último que se explicó.
+
+(2) Tipos
+  Los tipos del cálculo lambda se representan con el tipo Type:
+    TVar i representa la i-ésima variable de tipo s_i.
+    TNat y TBool representan los tipos Nat y Bool respectivamente.
+    TFun a b representa el tipo funcíon de _a_ a _b_, es decir a→b, siendo _a_ y _b_ dos elementos de tipo Type.
+
+(3 y 4) Expresiones en C-
+  Repaso de las posibles expresiones del cálculo lambda, diferenciando las anotadas y las sin anotar.
+  Recordar que el objetivo del algoritmo de inferencia es inferir el tipo de una expresión sin anotar.
+  Entonces, vamos a querer representar ambos tipos de expresiones.
+  Notar que la única diferencia entre una expresión anotada y una sin anotar está en las funciones lambda.
+
+(5) Expresiones en Haskell
+  Las expresiones del cálculo lambda se representan con el tipo Exp:
+  Los constructores para 0, true y false son triviales.
+  El contructor para una variable requiere un String (Symbol es un renombre de String) para identificar a la variable.
+    Por ejemplo, "x", "y", etc.
+  Los contructores recursivos para succ, pred, isZero, ifThenElse y la aplicación tampoco tienen mucha magia.
+    Requieren otros elementos del tipo Exp para representar las subestructuras recursivas.
+  El constructor para funciones tiene algo interesante (que vemos mejor en la siguiente diapo).
+
+(6) Expresiones en Haskell (funciones)
+  El tipo Exp en realidad es un tipo paramétrico.
+  El parámetro lo vamos a usar para distinguir entre expresiones anotadas y no anotadas.
+    El constructor de funciones lambda requiere un tipo que se corresponde con el tipo de la variable de entrada de la función.
+    Ejemplos:
+      x:Nat.true  --> LamExp "x" TNat (TrueExp)
+      x.x         --> LamExp "x" () (VarExp "x")
+
+(7) Contexto
+  De los contextos no nos importa cómo se representan sino qué operaciones podemos hacer:
+  -emptyContext   : Crea un contexto vacío
+  -extendC c v t  : Agrega un par variable-tipo al contexto (no verifica que no exista ya un par con la misma variable)
+  -removeC c v    : Quita del contexto c cualquier par que le asigne tipo a la variable v
+  -evalC c v      : Devuelve el tipo que le asigna el contexto c a la variable v (genera error si v no pertenece a c)
+  -joinC cs       : Une una lista en contextos en uno sólo
+  -domainC
+
+(8) Sustituciones y Unificación
+  Repaso de sustituciones y unificación.
+  Cuando combino soluciones recursivas quiero poder unificar pares de tipos que deberían referirse al mismo tipo
+  (por ejemplo, los tipos de los dos casos del IfThenElse).
+
+(9) Sustituciones y Unificación en Haskell
+  Más allá de la sintaxis, las sustituciones no son más que funciones que asignan tipos a variables de tipos.
+  Al aplicar una sustitución sobre un tipo, sobre un contexto o sobre una expresión, se reemplazan las variables de tipo por los tipos que les asigna la sustitución.
+    (estos tipos que se les asignan podrían a su vez ser variables de tipo)
+  La forma que vamos a usar para interactuar con sustituciones es a través de la función mgu que
+    toma una lista de pares de tipos que deberían unificar y
+    devuelve una sustitución en caso de éxito o
+    un error en caso de no poder encontrar ninguna sustitución.
+
+(10) La función de inferencia
+  La función principal es inferType que
+    dada una expresión no anotada representada con el tipo PlainExp
+    devuelve un resultado que
+      puede contener un juicio de tipado (en caso de que el algoritmo pueda inferir el tipo) o
+      puede contener un error (en caso contrario).
+  Para administrar el uso de variables de tipo frescas se crea la función auxiliar infer' que
+    toma una expresión no anotada y un entero (que representa el número de la última variable fresca usada) y
+    devuelve un resultado que si no es un error, además de contener el juicio de tipado, contiene el número de la próxima variable fresca.
+
+(11) ¡A programar!
+  El único archivo que tienen que completar es TypeInference.hs.
+  La consigna es completar infer' para los casos: 0, x, aplicación y función lambda
+    Si terminan temprano, pueden programar el resto
+
+(12) Probando el código
+  Una vez cargado el archivo Main, podemos usar la función inferExpr que toma una expresión como un string y le aplica inferType.
+
+Ejemplo
+  * Hagamos el ejemplo para succ(M)
+    ¿Qué es lo primero que hacemos?
+  * Lo primero que hacemos es el llamado recursivo para M ("e" en Haskell)
+    ¿Qué nos devuelve el llamado recursivo?
+  * Consideramos dos casos: el resultado del llamado recursivo es un OK o un Error
+    Veamos primero el caso fácil
+  * El caso fácil es el caso de error: devolvemos el mismo error
+    ¿Qué hacemos si el llamado recursivo tuvo éxito?
+    Veamos qué tenemos: n', c', e', t'
+  * Hay que unificar: Llamamos a mgu.
+    ¿Qué tipos queremos unificar?
+  * En este caso, sólo el tipo de la subexpresión con Nat
+    ¿Qué nos devuelve mgu?
+  * De vuelta, el resultado puede ser un error
+  * Si es un error, devolvemos el mismo error
+    ¿Qué hacemos si el unificador tuvo éxito?
+  * Ya estamos en condiciones de devolver algo
+  * Devolvemos el juicio de tipado compuesto por...
+    ¿El nuevo contexto?
+  * c'
+    ¿La nueva expresión?
+  * ¿SuccExp e?
+    No, e es una expresión sin anotar y queremos devolver una expresión anotada
+  * SuccExp e'
+    ¿Y el tipo?
+  * ¿t'?
+    No, t' es el tipo de e y queremos devolver el tipo de Succ(e)
+  * TNat
+    ¿Listo?
+  * Falta hacer las sustituciones. Para eso llamamos al mgu
+    En este caso no hace falta aplicarla a TNat porque sabemos que no se va a modificar pero no estaría mal hacerlo.
+    ¿Ahora sí? ¿Falta algo más? Miren lo que me devolvió el llamado recursivo.
+  * infer' no devuelve el juicio, devuelve un OK juicio o un Error.
+
+Notas sobre el video:
+ - 03:58 Cuando digo "un subconjunto de tipos" me refiero al caso en el que tenemos algo como "Num a => a", en el que "a" no puede ser "cualquier" tipo.
+ - 14:07 Cuando digo "par de tipos que quiero que matcheen entre sí", en realidad debería decir "asignación de una variable de tipo a un tipo".
+ - 19:02 Escribo "VarType" en lugar de "TVar"
+ - 23:20 (igual lo digo en el video) La diapo está mal: Es "expr 1" en lugar de "string 1"
