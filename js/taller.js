@@ -77,6 +77,8 @@ function ejercicio5() {
 // Ejercicio 6
 function ejercicio6() {
   Olaf.cambiarDirectiva = function(directiva, nueva_accion) {
+      delete this[directiva];
+
       if (this.directiva != directiva) {
           this.directiva = directiva;
           this[directiva] = nueva_accion;
@@ -86,6 +88,17 @@ function ejercicio6() {
   };
 
   Muneco.prototype.cambiarDirectiva = Olaf.cambiarDirectiva;
+
+  Olaf.solicitarAyuda = function (unMuneco) {
+    if (! ("ayudante" in this)) {
+        this.ayudante = unMuneco;
+        this.ayudante.cambiarDirectiva(this.directiva, this[this.directiva]);
+    } else {
+      this.ayudante.solicitarAyuda(unMuneco);
+    }
+  }
+
+    Muneco.prototype.solicitarAyuda = Olaf.solicitarAyuda;
 }
 
 // Editen esta función para que devuelva lo que quieran mostrar en la salida.
