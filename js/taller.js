@@ -76,7 +76,16 @@ function ejercicio5() {
 
 // Ejercicio 6
 function ejercicio6() {
+  Olaf.cambiarDirectiva = function(directiva, nueva_accion) {
+      if (this.directiva != directiva) {
+          this.directiva = directiva;
+          this[directiva] = nueva_accion;
+      } else {
+        this.directiva = ".";
+      }
+  };
 
+  Muneco.prototype.cambiarDirectiva = Olaf.cambiarDirectiva;
 }
 
 // Editen esta función para que devuelva lo que quieran mostrar en la salida.
