@@ -23,7 +23,14 @@ function ejercicio2() {
 
 // Ejercicio 3
 function ejercicio3() {
+  Olaf.presentarse = function () {
+    return "Hola, soy " + this.nombre + " y me encanta " + this.directiva;
+  }
 
+  Olaf.abrazar = function () {
+    this.altura ++;
+    return "abrazar";
+  }
 }
 
 // Ejercicio 4
