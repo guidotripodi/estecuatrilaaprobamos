@@ -61,10 +61,10 @@ function ejercicio4() {
 // Ejercicio 5
 function ejercicio5() {
   Liam = new Muneco("Liam", 8, "mensajear", function (remitente, destinatario, mensaje) {
-    if (destinatario.hasOwnProperty(mensaje)) {
+    if (mensaje in destinatario) {
       let respuesta = destinatario[mensaje]();
-      if (remitente.hasOwnProperty(respuesta)) {
-        return destinatario[respuesta]();
+      if (respuesta in remitente) {
+        return remitente[respuesta]();
       } else {
         return respuesta;
       }
