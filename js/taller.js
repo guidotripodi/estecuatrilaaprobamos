@@ -35,17 +35,43 @@ function ejercicio3() {
 
 // Ejercicio 4
 function ejercicio4() {
-  Muneco = undefined;
+  Muneco = function (nombre, altura, directiva, accion_directiva) {
+    this.nombre = nombre;
+    this.altura = altura;
+    this.directiva = directiva;
+
+    this.presentarse = Olaf.presentarse;
+
+    this[directiva] = accion_directiva;
+  };
 
   /* ¿Quiénes pueden responder al mensaje "abrazar"?
     Respuesta:
-
+      Olaf: si
+      Malvavisco: si
+      objecto creado con NuevoMuneco antes de que a Olaf se le agregue el metodo abrazar: si
+      objecto creado con Muneco antes de agregar a Olaf abrazar: depende de si la directiva es abrazar (si) u
+        otra (no)
+      objecto creado con NuevoMuneco despues de agregar a Olaf el metodo abrazar: si
+      objecto creado con Muneco despues de agregar a Olaf abrazar: depende de si la directiva es abrazar (si) u
+        otra (no)
   */
 }
 
 // Ejercicio 5
 function ejercicio5() {
-  Liam = undefined;
+  Liam = new Muneco("Liam", 8, "mensajear", function (remitente, destinatario, mensaje) {
+    if (destinatario.hasOwnProperty(mensaje)) {
+      let respuesta = destinatario[mensaje]();
+      if (remitente.hasOwnProperty(respuesta)) {
+        return destinatario[respuesta]();
+      } else {
+        return respuesta;
+      }
+    } else {
+      return mensaje;
+    }
+  });
 }
 
 // Ejercicio 6
