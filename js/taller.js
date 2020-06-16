@@ -1,13 +1,24 @@
 // Ejercicio 1
 function ejercicio1() {
-  Olaf = undefined;
+  Olaf = {
+    altura: 1.62,
+    directiva: "abrazar",
+    nombre: "Olaf"
+  };
 }
 
 // Ejercicio 2
 function ejercicio2() {
-  nuevoMuneco = undefined;
+  nuevoMuneco = function nuevoMuneco(nombre, altura, directiva) {
+     let nuevo = Object.create(Olaf);
+     nuevo.altura = altura;
+     nuevo.directiva = directiva;
+     nuevo.nombre = nombre;
 
-  Malvavisco = undefined;
+     return nuevo;
+  }
+
+  Malvavisco = nuevoMuneco("Malvavisco", 5, "cuidar a la reina");
 }
 
 // Ejercicio 3
