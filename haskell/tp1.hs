@@ -32,17 +32,17 @@ foldTarea fBasica fIndependiente fDependeDe tarea = case tarea of Basica a b -> 
 
 -- cantidadDeTareasBasicas
 cantidadDeTareasBasicas :: [Tarea] -> Int
-cantidadDeTareasBasicas = foldr (\n rec -> cantidadTareasB (n) + rec) 0
+cantidadDeTareasBasicas xs = sum (map (cantidadDeTareasDe) xs)
 
-cantidadTareasB :: Tarea -> Int
-cantidadTareasB = foldTarea (\s n -> 1) (\t1 t2 -> t1 + t2) (\t1 t2 n -> t1 + t2) 
+cantidadDeTareasDe :: Tarea -> Int
+cantidadDeTareasDe = foldTarea (\_ _ -> 1) (+) (\t1 t2 _ -> t1 + t2) 
 
 -- cantidadMaximaDeHoras
 cantidadMaximaDeHoras :: [Tarea] -> Int
-cantidadMaximaDeHoras = foldr(\n rec -> cantidadMaxima(n) + rec ) 0
+cantidadMaximaDeHoras xs = sum (map (cantidadMaxima) xs)
 
 cantidadMaxima :: Tarea -> Int
-cantidadMaxima = foldTarea (\s n -> n) (\t1 t2 -> t1 + t2) (\t1 t2 n -> t1 + t2 + n) 
+cantidadMaxima = foldTarea (const id) (+) (\num1 num2 n -> num1 + num2 + n) 
 -- tareasMasLargas
 tareasMasLargas :: Int -> [Tarea] -> [Tarea]
 tareasMasLargas h = filter (\x -> h < cantidadMaxima x) 
@@ -50,17 +50,17 @@ tareasMasLargas h = filter (\x -> h < cantidadMaxima x)
 
 -- chauListas
 chauListas :: [Tarea] -> Tarea
-chauListas xs = foldr1(\n rec -> (Independientes n rec)) xs
+chauListas = foldr1 Independientes -- este lo puse como dijo ella, no sabia que funcionaba asi tambien
 
 -- Ejercicio 4
 
 -- tareasBasicas
 tareasBasicas :: Tarea -> [Tarea]
-tareasBasicas = foldTarea (\x n-> [Basica x n]) (\t1 t2-> t1++t2) (\t1 t2 n -> t1++t2) 
+tareasBasicas = foldTarea (\x n-> [Basica x n]) (++) (\t1 t2 _ -> t1++t2) 
 
 -- esSubTareaDe
 esSubTareaDe :: String -> Tarea -> Bool
-esSubTareaDe s = foldTarea(\x n-> s == x)(\t1 t2 -> t1 || t2) (\t1 t2 h -> t1 || t2)
+esSubTareaDe s = foldTarea(\x _-> s == x)(||) (\t1 t2 _ -> t1 || t2)
 
 -- tareasBasicasIniciales
 tareasBasicasIniciales :: Tarea -> [Tarea]
@@ -83,7 +83,7 @@ listaDependientesTupla t1 = map (\x-> (x, length ( tareasBasicasQueDependenDe (n
 nombre :: Tarea -> String
 nombre tarea = case tarea of Basica a b -> a
                              Independientes t1 t2 -> []
-                             DependeDe t1 t2 a -> []
+                             DependeDe t1 t2 n -> []
 
 -- Ejercicio 6
 
@@ -105,6 +105,8 @@ tarea3 = Basica "c" 1
 tarea4 = Basica "d" 2
 tarea5 = DependeDe (Independientes tarea2 tarea3) tarea4 2
 tarea6 = DependeDe tarea2 tarea4 2
+tarea7 = Independientes tarea2 (Independientes tarea3 tarea4)
+tarea8 = Independientes tarea1 tarea5
 lista1 = [tarea1]
 lista2 = [tarea2,tarea3,tarea4]
 lista3 = [tarea1,tarea5]
@@ -141,7 +143,9 @@ testsEj2 = test [
   ]
 
 testsEj3 = test [
-  tarea1 ~=? chauListas lista1
+  tarea1 ~=? chauListas lista1,
+  tarea7 ~=? chauListas lista2,
+  tarea8 ~=? chauListas lista3
   ]
 
 testsEj4 = test [
@@ -160,7 +164,9 @@ testsEj4 = test [
 
 testsEj5 = test [
   "a" ~=? cuelloDeBotella tarea1,
-  "d" ~=? cuelloDeBotella tarea5
+  "d" ~=? cuelloDeBotella tarea5,
+  "b" ~=? cuelloDeBotella tarea7,
+  "d" ~=? cuelloDeBotella tarea8
   ]
 
 
