@@ -57,31 +57,50 @@ noMapa3([
 %%% EJERCICIO 1
 
 % islas(+M, -Is)
-islas(ruta(I1,I2,_),[I1|I2]).
-islas([ruta(I1,I2,_)|RS],[I1|I2|L]):- not(member(I1, L)), not(member(I2,L)), islas(RS,L).
-islas([ruta(I1,I2,_)|RS],[I1|L]):- not(member(I1, L)), member(I2,L), islas(RS,L).
-islas([ruta(I1,I2,_)|RS],[I2|L]):- member(I1, L), not(member(I2,L)), islas(RS,L).
-islas([ruta(I1,I2,_)|RS],[L]):- member(I1, L), member(I2,L), islas(RS,L).
+%islas([],[]).
+islas([ruta(I1,I2,_)],[I1|[I2]]).
+islas([ruta(I1,I2,_)|RS],[I1,I2|L]):- islas(RS,L), not(member(I1, L)), not(member(I2,L)).
+islas([ruta(I1,I2,_)|RS],[L]):- islas(RS,L), member(I1, L), member(I2,L).
+islas([ruta(I1,I2,_)|RS],[I1|L]):- islas(RS,L), not(member(I1, L)), member(I2,L).
+islas([ruta(I1,I2,_)|RS],[I2|L]):- islas(RS,L), member(I1, L), not(member(I2,L)).
 
 %%% EJERCICIO 2
 
 % islasVecinas(+M, +I, -Is)
-islasVecinas(_, _, _).
+islasVecinas([], _, []).
+islasVecinas([ruta(I1,I2,_)|RS], I, L):- I1 \= I, I \= I2, islasVecinas(RS,I,L).
+islasVecinas([ruta(I,I2,_)|RS], I, [I2|L]):- islasVecinas(RS,I,L), not(member(I2, L)).
+islasVecinas([ruta(I1,I,_)|RS], I, [I1|L]):- islasVecinas(RS,I,L), not(member(I1, L)).
+islasVecinas([ruta(I1,I,_)|RS], I, L):- islasVecinas(RS,I,L), member(I1, L).
+islasVecinas([ruta(I,I2,_)|RS], I, L):- islasVecinas(RS,I,L), member(I2, L).
 
 %%% EJERCICIO 3
 
 % distanciaVecinas(+M, +I1, +I2, -N)
-distanciaVecinas(_, _, _,_).
+distanciaVecinas([ruta(I1,I2, N)|_], I1, I2,N).
+distanciaVecinas([ruta(I2,I1, N)|_], I1, I2,N).
+distanciaVecinas([ruta(_,_, _)|L], I1, I2,N) :- distanciaVecinas(L, I1, I2, N). 
 
 %%% EJERCICIO 4
 
 % caminoSimple(+M, +O, +D, -C)
-caminoSimple(_, _, _, _).
+caminoSimple([], _, _, []).
+caminoSimple(RS, O, D, [O|[D]]):- islasVecinas(RS, O, L1), member(D, L1).
+caminoSimple(RS, O, X, [O, Y|L]):- islasVecinas(RS, O, L1), member(Y, L1), caminoSimple(RS, Y, X, [Y|L]). 
+
 
 %%% EJERCICIO 5
 
 % mapa(+M)
-mapa(_).
+mapa(M):- noSoyVecinoDeMiMismo(M),alcanzable(M),rutaNoEstaDosVeces(M).
+
+alcanzable(M):- islas(M, L), member(X,L), delete(L,X,L1), forall(member(Y,L1),caminoSimple(M, X, Y, _)).
+
+noSoyVecinoDeMiMismo([]).
+noSoyVecinoDeMiMismo([ruta(X,Y,_)|LS]):- X \= Y, noSoyVecinoDeMiMismo(LS).
+
+rutaNoEstaDosVeces([]).
+rutaNoEstaDosVeces([ruta(X,Y, _)|XS]):- not(member(ruta(X,Y, _), XS)), rutaNoEstaDosVeces(XS).
 
 %%% EJERCICIO 6
 
