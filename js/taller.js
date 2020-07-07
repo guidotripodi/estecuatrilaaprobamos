@@ -90,7 +90,7 @@ function ejercicio6() {
   Muneco.prototype.cambiarDirectiva = Olaf.cambiarDirectiva;
 
   Olaf.solicitarAyuda = function (unMuneco) {
-    if (! ("ayudante" in this)) {
+    if (! (this.ayudante == undefined)) {
         this.ayudante = unMuneco;
         this.ayudante.cambiarDirectiva(this.directiva, this[this.directiva]);
     } else {

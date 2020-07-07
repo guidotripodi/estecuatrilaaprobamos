@@ -95,6 +95,9 @@ pasos zf xs zi = length(takeWhile (/=zf)  [ f n | n <- [0..] ])
                         where f = \n -> foldl (\x fi -> fi $x) zi (take n xs)
 
 
+
+
+
 -- Tests
 main :: IO Counts
 main = do runTestTT allTests
