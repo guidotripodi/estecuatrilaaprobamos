@@ -84,9 +84,10 @@ distanciaVecinas([ruta(_,_, _)|L], I1, I2,N) :- distanciaVecinas(L, I1, I2, N).
 %%% EJERCICIO 4
 
 % caminoSimple(+M, +O, +D, -C)
-caminoSimple([], _, _, []).
+%caminoSimple([X], X, Y, []).
 caminoSimple(RS, O, D, [O|[D]]):- islasVecinas(RS, O, L1), member(D, L1).
-caminoSimple(RS, O, X, [O, Y|L]):- islasVecinas(RS, O, L1), member(Y, L1), caminoSimple(RS, Y, X, [Y|L]). 
+caminoSimple(RS, O, X, [O, Y|L]):- islasVecinas(RS, O, L1), member(Y, L1), not(member(Y,L)), caminoSimple(RS, Y, X, [Y|L]). 
+
 
 
 %%% EJERCICIO 5
