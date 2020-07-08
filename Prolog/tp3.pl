@@ -106,17 +106,22 @@ rutaNoEstaDosVeces([ruta(X,Y, _)|XS]):- not(member(ruta(X,Y, _), XS)), rutaNoEst
 %%% EJERCICIO 6
 
 % caminoHamiltoniano(+M, +O, +D, -C)
-caminoHamiltoniano(_, _, _, _).
+caminoHamiltoniano(M, O, D, L):- caminoSimple(M,O,D,L), islas(M,L1), forall(member(Y, L1), member(Y, L)).
 
 %%% EJERCICIO 7
 
 % caminoHamiltoniano(+M, -C)
-caminoHamiltoniano(_, _).
+caminoHamiltoniano(M, C):- member(X, islas(M)), member(Y, islas(M)), Y \= X, caminoHamiltoniano(M, X, Y, C).
 
 %%% Ejercicio 8
 
 % caminoMinimo(+M, +O, +D, -C, -Distancia)
-caminoMinimo(_, _, _, _, _).
+caminoMinimo(M, O, D, C, DIS):- camino(M, O, D, C, DIS), not(caminoMasCorto(M,O,D,C,_,_,DIS)).
+
+caminoMasCorto(M,O,D,C,C1,D1,DIS):- camino(M, O, D, C1, D1), C1 \= C, D1 =< DIS.
+
+camino(RS, O, D, [O|[D]], DIS):- islasVecinas(RS, O, L1), member(D, L1), distanciaVecinas(RS,O,D,DIS).
+camino(RS, O, X, [O, Y|L], DIS):- islasVecinas(RS, O, L1), member(Y, L1), distanciaVecinas(RS,O,Y, D1), DIS is D1 + D2, camino(RS, Y, X, [Y|L], D2). 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TESTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
