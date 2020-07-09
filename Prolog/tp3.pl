@@ -84,11 +84,13 @@ distanciaVecinas([ruta(_,_, _)|L], I1, I2,N) :- distanciaVecinas(L, I1, I2, N).
 %%% EJERCICIO 4
 
 % caminoSimple(+M, +O, +D, -C)
-%caminoSimple([X], X, Y, []).
+
 caminoSimple(RS, O, D, [O|[D]]):- islasVecinas(RS, O, L1), member(D, L1).
-caminoSimple(RS, O, X, [O, Y|L]):- islasVecinas(RS, O, L1), member(Y, L1), not(member(Y,L)), caminoSimple(RS, Y, X, [Y|L]). 
+caminoSimple(RS, O, X, [O, Y|L]):- islasVecinas(RS, O, L1), member(Y, L1),borrar(RS, ruta(O,Y,_), RS1),caminoSimple(RS1, Y, X, [Y|L]). 
 
-
+borrar([],_,[]).
+borrar([X|T], X, SINX):- borrar(T, X, SINX).
+borrar([Y|T], X, [Y|REC]):- Y \= X, borrar(T, X, REC).
 
 %%% EJERCICIO 5
 
@@ -118,7 +120,7 @@ caminoHamiltoniano(M, C):- member(X, islas(M)), member(Y, islas(M)), Y \= X, cam
 % caminoMinimo(+M, +O, +D, -C, -Distancia)
 caminoMinimo(M, O, D, C, DIS):- camino(M, O, D, C, DIS), not(caminoMasCorto(M,O,D,C,_,_,DIS)).
 
-caminoMasCorto(M,O,D,C,C1,D1,DIS):- camino(M, O, D, C1, D1), C1 \= C, D1 =< DIS.
+caminoMasCorto(M,O,D,C,C1,D1,DIS):- camino(M, O, D, C1, D1), C1 \= C, DIS >= D1.
 
 camino(RS, O, D, [O|[D]], DIS):- islasVecinas(RS, O, L1), member(D, L1), distanciaVecinas(RS,O,D,DIS).
 camino(RS, O, X, [O, Y|L], DIS):- islasVecinas(RS, O, L1), member(Y, L1), distanciaVecinas(RS,O,Y, D1), DIS is D1 + D2, camino(RS, Y, X, [Y|L], D2). 
