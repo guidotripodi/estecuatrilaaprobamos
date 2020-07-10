@@ -123,7 +123,7 @@ caminoMinimo(M, O, D, C, DIS):- camino(M, O, D, C, DIS), not(caminoMasCorto(M,O,
 caminoMasCorto(M,O,D,C,C1,D1,DIS):- camino(M, O, D, C1, D1), C1 \= C, DIS >= D1.
 
 camino(RS, O, D, [O|[D]], DIS):- islasVecinas(RS, O, L1), member(D, L1), distanciaVecinas(RS,O,D,DIS).
-camino(RS, O, X, [O, Y|L], DIS):- islasVecinas(RS, O, L1), member(Y, L1),borrar(RS, ruta(O,Y,_), RS1), distanciaVecinas(RS1,O,Y, D1), DIS = D1 + D2, camino(RS, Y, X, [Y|L], D2). 
+camino(RS, O, X, [O, Y|L], DIS):- islasVecinas(RS, O, L1), member(Y, L1),borrar(RS, ruta(O,Y,_), RS1), distanciaVecinas(RS,O,Y, D1), camino(RS1, Y, X, [Y|L], D2),DIS is D1 + D2. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TESTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
