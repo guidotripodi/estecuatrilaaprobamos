@@ -113,7 +113,7 @@ caminoHamiltoniano(M, O, D, L):- caminoSimple(M,O,D,L), islas(M,L1), forall(memb
 %%% EJERCICIO 7
 
 % caminoHamiltoniano(+M, -C)
-caminoHamiltoniano(M, C):- member(X, islas(M)), member(Y, islas(M)), Y \= X, caminoHamiltoniano(M, X, Y, C).
+caminoHamiltoniano(M, C):- caminoHamiltoniano(M, _, _, C), islas(M,L1), forall(member(Y, L1), member(Y,C)).
 
 %%% Ejercicio 8
 
