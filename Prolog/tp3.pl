@@ -70,12 +70,11 @@ islasVecinas([ruta(I,I1,_)|RS], I, L):- islasVecinas(RS,I,L), member(I1, L).
 islasVecinas([ruta(_,_,_)|RS], I, L):- islasVecinas(RS,I,L).
 
 
-%%% EJERCICIO 3 No se como usar member aca si es a la lista de rutas
+%%% EJERCICIO 3 
 
 % distanciaVecinas(+M, +I1, +I2, -N)
-distanciaVecinas([ruta(I1,I2, N)|_], I1, I2,N).
-distanciaVecinas([ruta(I2,I1, N)|_], I1, I2,N).
-distanciaVecinas([ruta(_,_, _)|L], I1, I2,N) :- distanciaVecinas(L, I1, I2, N). 
+distanciaVecinas(M, I1, I2,N):- member(ruta(I1,I2,N),M).
+ 
 
 %%% EJERCICIO 4
 
@@ -88,12 +87,20 @@ borrar([],_,[]).
 borrar([X|T], X, SINX):- borrar(T, X, SINX).
 borrar([Y|T], X, [Y|REC]):- Y \= X, borrar(T, X, REC).
 
-%%% EJERCICIO 5 tengo que leer bien como es el enunciado
+%%% EJERCICIO 5 
 
 % mapa(+M)
-mapa(M):- noSoyVecinoDeMiMismo(M),alcanzable(M),rutaNoEstaDosVeces(M).
+mapa(M):- noSoyVecinoDeMiMismo(M),alcanzable(M),rutaNoEstaDosVeces(M),unaIdaYunaVuelta(M,M).
 
-alcanzable(M):- islas(M, L), member(X,L), delete(L,X,L1), forall(member(Y,L1),caminoSimple(M, X, Y, _)).
+unaIdaYunaVuelta(_,[]).
+unaIdaYunaVuelta(M,[ruta(X,Y,_)|MS]):- member(ruta(Y,X,_),M),unaIdaYunaVuelta(M,MS).
+
+
+alcanzable(M):- todasSonAlcanzables(M,M,L), islas(M,L1), length(L,P), length(L1,P).
+
+todasSonAlcanzables(_,[],[]).
+todasSonAlcanzables(M,[ruta(X,_,_)|MS],[X|XS]):-islas(M, L), member(X,L), delete(L,X,L1), forall(member(Y,L1),caminoSimple(M, X, Y, _)),todasSonAlcanzables(M,MS, XS),not(member(X,XS)).
+todasSonAlcanzables(M,[ruta(X,_,_)|MS],XS):-todasSonAlcanzables(M, MS, XS),member(X,XS).
 
 noSoyVecinoDeMiMismo([]).
 noSoyVecinoDeMiMismo([ruta(X,Y,_)|LS]):- X \= Y, noSoyVecinoDeMiMismo(LS).
@@ -128,11 +135,17 @@ caminoMasCorto(M,O,D,_,C1,D1,DIS):- camino(M, O, D, C1, D1), DIS >= D1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TESTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-cantidadTestsIslas(1). % ¡Actualizar!
+cantidadTestsIslas(3). 
 testIslas(1) :- mapaEjemplo(Mapa), islas(Mapa, Islas), length(Islas, 3), sort(Islas, [papeete, tahiti, uturoa]).
+testIslas(2) :- mapaEjemplo2(Mapa), islas(Mapa, Islas), length(Islas, 3), sort(Islas, [funafuti, savave,valitupu]).
+testIslas(3) :- mapaEjemplo3(Mapa), islas(Mapa, Islas), length(Islas, 4).
 
-cantidadTestsMapa(1). % ¡Actualizar!
+cantidadTestsMapa(3). 
 testMapa(1) :- noMapa(NM), not(mapa(NM)).
+testMapa(2) :- mapaEjemplo(NM), mapa(NM).
+testMapa(3) :- mapaEjemplo2(NM), mapa(NM).
+
+
 
 cantidadTestsCaminos(3). % ¡Actualizar!
 testCaminos(1) :- mapaEjemplo(Mapa), setof(C, caminoSimple(Mapa, uturoa, papeete, C), L), length(L, 2).
