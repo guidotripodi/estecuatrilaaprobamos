@@ -64,10 +64,10 @@ islas([ruta(I1,_,_)|RS], L):- islas(RS,L), member(I1,L).
 %%% EJERCICIO 2
 
 % islasVecinas(+M, +I, -Is)
+
 islasVecinas([], _, []).
 islasVecinas([ruta(I,I1,_)|RS], I, [I1|L]):- islasVecinas(RS,I,L), not(member(I1,L)).
-islasVecinas([ruta(I,I1,_)|RS], I, L):- islasVecinas(RS,I,L), member(I1, L).
-islasVecinas([ruta(_,_,_)|RS], I, L):- islasVecinas(RS,I,L).
+islasVecinas([ruta(I2,_,_)|RS], I, L):- I \= I2, islasVecinas(RS,I,L).
 
 
 %%% EJERCICIO 3 
@@ -78,14 +78,12 @@ distanciaVecinas(M, I1, I2,N):- member(ruta(I1,I2,N),M).
 
 %%% EJERCICIO 4
 
-% caminoSimple(+M, +O, +D, -C) simplifique islasVecinas para que ande
+% caminoSimple(+M, +O, +D, -C) 
 
-caminoSimple(RS, O, D, [O|[D]]):- islasVecinas(RS, O, L1), member(D, L1).
-caminoSimple(RS, O, X, [O, Y|L]):- islasVecinas(RS, O, L1), member(Y, L1),borrar(RS, ruta(O,Y,_), RS1),caminoSimple(RS1, Y, X, [Y|L]). 
+caminoSimple(RS, O, D, [O|[D]]):- islasVecinas(RS, O, L), member(D, L).
+caminoSimple(RS, O, X, [O|L]):- islasVecinas(RS, O, L1), member(Y,L1),not(member(Y,L)), caminoSimple(RS,Y,X,[Y|L]).
 
-borrar([],_,[]).
-borrar([X|T], X, SINX):- borrar(T, X, SINX).
-borrar([Y|T], X, [Y|REC]):- Y \= X, borrar(T, X, REC).
+vecina(M,X, Y):- member(ruta(X,Y,_),M).
 
 %%% EJERCICIO 5 
 
@@ -116,7 +114,7 @@ caminoHamiltoniano(M, O, D, L):- caminoSimple(M,O,D,L), islas(M,L1), forall(memb
 %%% EJERCICIO 7
 
 % caminoHamiltoniano(+M, -C)
-caminoHamiltoniano(M, C):- caminoHamiltoniano(M, _, _, C), islas(M,L1), forall(member(Y, L1), member(Y,C)).
+caminoHamiltoniano(M, C):- islas(M,L), member(X,L), member(Y,L),caminoHamiltoniano(M, X, Y, C).
 
 %%% Ejercicio 8
 
