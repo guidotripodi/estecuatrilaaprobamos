@@ -67,7 +67,7 @@ islas([ruta(I1,_,_)|RS], L):- islas(RS,L), member(I1,L).
 
 islasVecinas([], _, []).
 islasVecinas([ruta(I,I1,_)|RS], I, [I1|L]):- islasVecinas(RS,I,L), not(member(I1,L)).
-islasVecinas([ruta(I2,_,_)|RS], I, L):- I \= I2, islasVecinas(RS,I,L).
+islasVecinas([ruta(I2,_,_)|RS], I, L):- I \=I2, islasVecinas(RS,I,L).
 
 
 %%% EJERCICIO 3 
@@ -80,10 +80,17 @@ distanciaVecinas(M, I1, I2,N):- member(ruta(I1,I2,N),M).
 
 % caminoSimple(+M, +O, +D, -C) 
 
-caminoSimple(RS, O, D, [O|[D]]):- islasVecinas(RS, O, L), member(D, L).
-caminoSimple(RS, O, X, [O|L]):- islasVecinas(RS, O, L1), member(Y,L1),not(member(Y,L)), caminoSimple(RS,Y,X,[Y|L]).
+caminoSimple(M, O,D,C):- caminoS(M,O,[D],C).
+
+caminoS(_,O,[O|C1],[O|C1]).
+caminoS(M,O,[Y|C1],C) :-vecina(M,X,Y),not(member(X,[Y|C1])),caminoS(M,O,[X,Y|C1],C).
 
 vecina(M,X, Y):- member(ruta(X,Y,_),M).
+
+%Es reversible en O y D ya que toma la "cabeza" de la lista como elemento Origen 
+%y el final de la lista como elemento Destino 
+%No es reversible en Mapa ya que en la primer clausula tiene infinitas soluciones posibles de M
+% y por lo tanto se cuelga
 
 %%% EJERCICIO 5 
 
@@ -116,12 +123,15 @@ caminoHamiltoniano(M, O, D, L):- caminoSimple(M,O,D,L), islas(M,L1), forall(memb
 % caminoHamiltoniano(+M, -C)
 caminoHamiltoniano(M, C):- islas(M,L), member(X,L), member(Y,L),caminoHamiltoniano(M, X, Y, C).
 
-%%% Ejercicio 8
+
+%%% Ejercicio 8 
+
+%solo falta dejar lindo este, me esta explotando en distanciaTotal
 
 % caminoMinimo(+M, +O, +D, -C, -Distancia)
 caminoMinimo(M, O, D, C, DIS):-  caminoSimple(RS,O,D,C), distanciaTotal(RS,C,DIS), not(caminoMasCorto(M,O,D,C,_,_,DIS)).
 
-distanciaTotal(RS,[X|[Y]], DIS):-distanciaVecinas(RS,X,Y,DIS).
+distanciaTotal(_,[], 0).
 distanciaTotal(RS,[X,Y|L], DIS):- distanciaVecinas(RS,X,Y,D2), distanciaTotal([Y|L], D1), DIS is D1+D2.
 
 caminoMasCorto(M,O,D,_,C1,D1,DIS):- camino(M, O, D, C1, D1), DIS >= D1.
@@ -138,14 +148,16 @@ testIslas(1) :- mapaEjemplo(Mapa), islas(Mapa, Islas), length(Islas, 3), sort(Is
 testIslas(2) :- mapaEjemplo2(Mapa), islas(Mapa, Islas), length(Islas, 3), sort(Islas, [funafuti, savave,valitupu]).
 testIslas(3) :- mapaEjemplo3(Mapa), islas(Mapa, Islas), length(Islas, 4).
 
+cantidadTestVecinas(2).
+testsVecinas(1):- mapaEjemplo(Mapa), islasVecinas(Mapa,uturoa, Vecis), length(Vecis, 2).
+testsVecinas(2):- mapaEjemplo2(Mapa), islasVecinas(Mapa,valitupu, Vecis), length(Vecis, 2).
+
 cantidadTestsMapa(3). 
 testMapa(1) :- noMapa(NM), not(mapa(NM)).
 testMapa(2) :- mapaEjemplo(NM), mapa(NM).
 testMapa(3) :- mapaEjemplo2(NM), mapa(NM).
 
-
-
-cantidadTestsCaminos(3). % ¡Actualizar!
+cantidadTestsCaminos(3). 
 testCaminos(1) :- mapaEjemplo(Mapa), setof(C, caminoSimple(Mapa, uturoa, papeete, C), L), length(L, 2).
 testCaminos(2) :- mapaEjemplo(Mapa), setof(C, caminoHamiltoniano(Mapa, uturoa, papeete, C), L), length(L, 1).
 testCaminos(3) :- mapaEjemplo3(M),setof(C, caminoHamiltoniano(M, C), L), length(L, 8).
