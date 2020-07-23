@@ -127,7 +127,7 @@ caminoHamiltoniano(M, C):- islas(M,L), member(X,L), member(Y,L),caminoHamiltonia
 %%% Ejercicio 8 
 
 % caminoMinimo(+M, +O, +D, -C, -Distancia)
-caminoMinimo(M, O, D, C, DIS):-  camino(M,O,D,C, DIS), not(caminoMasCorto(M,O,D,_,_,0,DIS)).
+caminoMinimo(M, O, D, C, DIS):-  camino(M,O,D,C, DIS), not(caminoMasCorto(M,O,D,C)).
 
 camino(RS, O, D, C, DIS):- caminoSimple(RS, O, D, C), distanciaTotal(RS, C, DIS).
 
@@ -136,8 +136,12 @@ distanciaTotal(RS,[X|L], DIS):- length(L, P), P > 0, headL(L, Y),distanciaVecina
 
 headL([X|_], X).
 
-caminoMasCorto(M,O,D,_,C1,D1,DIS):- camino(M, O, D, C1, D1), DIS >= D1.
+caminoMasCorto(M,O,D,C):- camino(M, O, D, C1, D1), distanciaTotal(M,C,DIS), C1 \= C, DIS >= D1.
 
+%Si en DIS colocamos el valor del camino , se buscara el camino con dicha distancia, no es reversible 
+%en M ya que caminoSimple tampoco lo es en M por ende se cuelga ya que encuentra infinitos caminos posibles
+%Idem si colocamos el camino, nos devolvera la distancia correspondiente., si colocamos tanto camino
+% como distancia intentara unificar y encontrar valido dicho camino, retornando true o false.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TESTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -156,12 +160,12 @@ testMapa(1) :- noMapa(NM), not(mapa(NM)).
 testMapa(2) :- mapaEjemplo(NM), mapa(NM).
 testMapa(3) :- mapaEjemplo2(NM), mapa(NM).
 
-cantidadTestsCaminos(4). 
+cantidadTestsCaminos(5). 
 testCaminos(1) :- mapaEjemplo(Mapa), setof(C, caminoSimple(Mapa, uturoa, papeete, C), L), length(L, 2).
 testCaminos(2) :- mapaEjemplo(Mapa), setof(C, caminoHamiltoniano(Mapa, uturoa, papeete, C), L), length(L, 1).
 testCaminos(3) :- mapaEjemplo3(M),setof(C, caminoHamiltoniano(M, C), L), length(L, 8).
 testCaminos(4) :- mapaEjemplo2(M),caminoMinimo(M, valitupu, savave, _, D), D = 10.
-
+testCaminos(5) :- mapaEjemplo3(M),caminoMinimo(M, nui, funafuti, _, D), D = 50.
 
 tests(islas) :- cantidadTestsIslas(M), forall(between(1,M,N), testIslas(N)).
 tests(mapa) :- cantidadTestsMapa(M), forall(between(1,M,N), testMapa(N)).
