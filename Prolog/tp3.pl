@@ -126,20 +126,19 @@ caminoHamiltoniano(M, C):- islas(M,L), member(X,L), member(Y,L),caminoHamiltonia
 
 %%% Ejercicio 8 
 
-%solo falta dejar lindo este, me esta explotando en distanciaTotal
-
 % caminoMinimo(+M, +O, +D, -C, -Distancia)
-caminoMinimo(M, O, D, C, DIS):-  caminoSimple(RS,O,D,C), distanciaTotal(RS,C,DIS), not(caminoMasCorto(M,O,D,C,_,_,DIS)).
+caminoMinimo(M, O, D, C, DIS):-  camino(M,O,D,C, DIS), not(caminoMasCorto(M,O,D,C,_,_,DIS)).
 
-distanciaTotal(_,[], 0).
-distanciaTotal(RS,[X,Y|L], DIS):- distanciaVecinas(RS,X,Y,D2), distanciaTotal([Y|L], D1), DIS is D1+D2.
+camino(RS, O, D, C, DIS):- caminoSimple(RS, O, D, C), distanciaTotal(RS, C, DIS).
+
+distanciaTotal(_,X, 0):- length(X,P), P = 1.
+distanciaTotal(RS,[X|L], DIS):- length(L, P), P > 0, headL(L, Y),distanciaVecinas(RS,X,Y,D2), distanciaTotal(RS,L,D1), DIS is D1+D2.
+
+headL([X|_], X).
 
 caminoMasCorto(M,O,D,_,C1,D1,DIS):- camino(M, O, D, C1, D1), DIS >= D1.
 
 
-%camino(RS, O, D, [O|[D]], DIS):- islasVecinas(RS, O, L1), member(D, L1), distanciaVecinas(RS,O,D,DIS).
-%camino(RS, O, X, [O, Y|L], DIS):- islasVecinas(RS, O, L1), member(Y, L1),borrar(RS, ruta(O,Y,_), RS1), distanciaVecinas(RS,O,Y, D1), camino(RS1, Y, X, [Y|L], D2),DIS is D1 + D2. 
-%camino(RS, O, D, C, DIS):- caminoSimple(RS,O,D,C), distanciaTotal(RS,C,DIS).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TESTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
