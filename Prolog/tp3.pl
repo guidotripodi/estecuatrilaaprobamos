@@ -80,10 +80,10 @@ distanciaVecinas(M, I1, I2,N):- member(ruta(I1,I2,N),M).
 
 % caminoSimple(+M, +O, +D, -C) 
 
-caminoSimple(M, O,D,C):- caminoS(M,O,[D],C).
+caminoSimple(M, O,D,C):- caminoSimpleAux(M,O,[D],C).
 
-caminoS(_,O,[O|C1],[O|C1]).
-caminoS(M,O,[Y|C1],C) :-vecina(M,X,Y),not(member(X,[Y|C1])),caminoS(M,O,[X,Y|C1],C).
+caminoSimpleAux(_,O,[O|C1],[O|C1]).
+caminoSimpleAux(M,O,[Y|C1],C) :-vecina(M,X,Y),not(member(X,[Y|C1])),caminoSimpleAux(M,O,[X,Y|C1],C).
 
 vecina(M,X, Y):- member(ruta(X,Y,_),M).
 
@@ -127,7 +127,7 @@ caminoHamiltoniano(M, C):- islas(M,L), member(X,L), member(Y,L),caminoHamiltonia
 %%% Ejercicio 8 
 
 % caminoMinimo(+M, +O, +D, -C, -Distancia)
-caminoMinimo(M, O, D, C, DIS):-  camino(M,O,D,C, DIS), not(caminoMasCorto(M,O,D,C,_,_,DIS)).
+caminoMinimo(M, O, D, C, DIS):-  camino(M,O,D,C, DIS), not(caminoMasCorto(M,O,D,_,_,0,DIS)).
 
 camino(RS, O, D, C, DIS):- caminoSimple(RS, O, D, C), distanciaTotal(RS, C, DIS).
 
@@ -156,10 +156,11 @@ testMapa(1) :- noMapa(NM), not(mapa(NM)).
 testMapa(2) :- mapaEjemplo(NM), mapa(NM).
 testMapa(3) :- mapaEjemplo2(NM), mapa(NM).
 
-cantidadTestsCaminos(3). 
+cantidadTestsCaminos(4). 
 testCaminos(1) :- mapaEjemplo(Mapa), setof(C, caminoSimple(Mapa, uturoa, papeete, C), L), length(L, 2).
 testCaminos(2) :- mapaEjemplo(Mapa), setof(C, caminoHamiltoniano(Mapa, uturoa, papeete, C), L), length(L, 1).
 testCaminos(3) :- mapaEjemplo3(M),setof(C, caminoHamiltoniano(M, C), L), length(L, 8).
+testCaminos(4) :- mapaEjemplo2(M),caminoMinimo(M, valitupu, savave, _, D), D = 10.
 
 
 tests(islas) :- cantidadTestsIslas(M), forall(between(1,M,N), testIslas(N)).
