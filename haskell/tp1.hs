@@ -76,14 +76,14 @@ tareasBasicasQueDependenDe n = recTarea (\s n -> []) (const $ const (++)) (\t1 t
 
 -- cuelloDeBotella
 cuelloDeBotella :: Tarea -> String
-cuelloDeBotella t1 =  nombre (fst (head (sortBy (\x y -> compare (snd y) (snd x)) (listaDependientesTupla t1))))
+cuelloDeBotella t1 =  nombreDeTarea (fst (head (sortBy (\x y -> compare (snd y) (snd x)) (listaDependientesTupla t1))))
 --
 listaDependientesTupla :: Tarea -> [(Tarea, Int)]
-listaDependientesTupla t1 = map (\x-> (x, length ( tareasBasicasQueDependenDe (nombre x) t1))) (tareasBasicas t1)
+listaDependientesTupla t1 = map (\x-> (x, length ( tareasBasicasQueDependenDe (nombreDeTarea x) t1))) (tareasBasicas t1)
 
 
-nombre :: Tarea -> String
-nombre tarea = case tarea of Basica a b -> a
+nombreDeTarea :: Tarea -> String
+nombreDeTarea tarea = case tarea of Basica a b -> a
                              Independientes t1 t2 -> []
                              DependeDe t1 t2 n -> []
 
