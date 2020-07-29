@@ -67,8 +67,10 @@ tareasBasicasIniciales :: Tarea -> [Tarea]
 tareasBasicasIniciales = foldTarea (\x n-> [Basica x n]) (\t1 t2-> t1++t2) (\t1 t2 n -> t2)
 
 -- tareasBasicasQueDependenDe
+
 tareasBasicasQueDependenDe :: String -> Tarea -> [Tarea]
-tareasBasicasQueDependenDe n = recTarea (\x s -> []) (\t1 t2 rec1 rec2 -> rec1 ++ rec2) (\t1 t2 rec1 rec2 h-> if (esSubTareaDe n t2) then (tareasBasicas t1) else []) 
+tareasBasicasQueDependenDe n = recTarea (\s n -> []) (const $ const (++)) (\t1 t2 rec1 rec2 h -> if esSubTareaDe n t2 then (tareasBasicas t1) ++ rec2 else rec1)
+-- en este podriamos poner un where para el segundo caso que nos quedo bastante largo por el if
 
 -- Ejercicio 5
 
@@ -90,12 +92,8 @@ nombre tarea = case tarea of Basica a b -> a
 type LuzMagica a = (a -> a)
 
 -- pasos
-pasos :: (Eq a) => a -> [(a -> a)] -> a -> Int
-pasos zf xs zi = length(takeWhile (/=zf)  [ f n | n <- [0..] ]) 
-                        where f = \n -> foldl (\x fi -> fi $x) zi (take n xs)
-
-
-
+pasos :: (Eq a) => a -> [LuzMagica a] -> a -> Int
+pasos pf = foldr (\f rec -> \x -> if x == pf then 0 else 1 + rec (f x) ) (\a -> 0)
 
 
 -- Tests
@@ -110,9 +108,17 @@ tarea5 = DependeDe (Independientes tarea2 tarea3) tarea4 2
 tarea6 = DependeDe tarea2 tarea4 2
 tarea7 = Independientes tarea2 (Independientes tarea3 tarea4)
 tarea8 = Independientes tarea1 tarea5
+tarea9 = DependeDe tarea4 (Independientes tarea2 tarea3) 2
+tarea10 = DependeDe (Independientes tarea1 tarea2) (DependeDe tarea3 tarea4 3) 2
+tarea11 = DependeDe tarea5 tarea1 3
+tarea12 = Independientes tarea5 tarea11
+tarea13 = Independientes tarea5 tarea10
 lista1 = [tarea1]
-lista2 = [tarea2,tarea3,tarea4]
-lista3 = [tarea1,tarea5]
+lista2 = [tarea2,tarea3,tarea4] -- todas basicas
+lista3 = [tarea1,tarea5] -- basica y depende
+lista4 = [tarea7] -- independiente independiente 
+lista5 = [tarea8] -- independiente
+lista6 = [tarea1,tarea2,tarea3,tarea4] -- todas basicas x2
 
 allTests = test [
     "ejercicio1" ~: testsEj1,
@@ -130,10 +136,16 @@ sumas123 :: [LuzMagica Int]
 sumas123 = ((+1):((+2):((+3):sumas123)))
 sumas3 :: [LuzMagica Int]
 sumas3 = [(+1),(+2)]
+mult2 :: [LuzMagica Int]
+mult2 = ((*2):mult2)
 
 testsEj1 = test [
   "a" ~=? recTarea (\n h -> n) (\t1 t2 s1 s2 -> s1) (\t1 t2 s1 s2 h -> s1) tarea1,
-  "a" ~=? foldTarea (\n h -> n) (\s1 s2 -> s1) (\s1 s2 h -> s1) tarea1
+  "a" ~=? foldTarea (\n h -> n) (\s1 s2 -> s1) (\s1 s2 h -> s1) tarea1,
+  "bcd" ~=? recTarea (\n h -> n) (\t1 t2 s1 s2 -> s1 ++ s2) (\t1 t2 s1 s2 h -> s1) tarea7, 
+  "abcd" ~=? recTarea (\n h -> n) (\t1 t2 s1 s2 -> s1 ++ s2) (\t1 t2 s1 s2 h -> s1 ++ s2) tarea8,
+  "bcdbcda" ~=? foldTarea (\n h -> n) (++) (\s1 s2 h -> s1 ++ s2) tarea12, --la 12 usa la 5 y la 11 que usa la 5
+  "bcdabcd" ~=? foldTarea (\n h -> n) (++) (\s1 s2 h -> s1 ++ s2) tarea13
   ]
 
 testsEj2 = test [
@@ -141,6 +153,7 @@ testsEj2 = test [
   4 ~=? cantidadDeTareasBasicas lista3,
   3 ~=? cantidadMaximaDeHoras lista1,
   9 ~=? cantidadMaximaDeHoras lista3,
+  7 ~=? cantidadMaximaDeHoras lista6,
   [] ~=? tareasMasLargas 3 lista1,
   [tarea5] ~=? tareasMasLargas 3 lista3
   ]
@@ -148,7 +161,14 @@ testsEj2 = test [
 testsEj3 = test [
   tarea1 ~=? chauListas lista1,
   tarea7 ~=? chauListas lista2,
-  tarea8 ~=? chauListas lista3
+  tarea8 ~=? chauListas lista3,
+  (Independientes tarea1 (Independientes tarea2 (Independientes tarea3 tarea4))) ~=? chauListas lista6,
+  (Independientes tarea4 (Independientes tarea3 (Independientes tarea2 tarea1))) ~=? chauListas (reverse lista6)
+  (Independientes tarea1 tarea5) ~=? chauListas lista8,
+  (Independientes tarea1 (Independientes tarea2 (Independientes tarea3 tarea4))) ~=? chauListas (concat [lista1,lista2]),
+  (Independientes tarea1 (Independientes tarea2 (Independientes tarea3 tarea4))) ~=? chauListas (reverse (concat [lista1,lista2])),
+  DependeDe (Independientes (Independientes tarea2 tarea3) (Independientes tarea1 tarea1)) tarea4 3 ~=? chauListas (reverse (concat [lista1,lista3]))
+
   ]
 
 testsEj4 = test [
@@ -156,13 +176,20 @@ testsEj4 = test [
   lista2 ~=? tareasBasicas tarea5,
   False ~=? esSubTareaDe "b" tarea1,
   True ~=? esSubTareaDe "b" tarea5,
+  True ~=? esSubTareaDe "b" tarea12,
+  True ~=? esSubTareaDe "a" tarea12,
+  False ~=? esSubTareaDe "h" tarea12,
   [tarea1] ~=? tareasBasicasIniciales tarea1,
   [tarea4] ~=? tareasBasicasIniciales tarea5,
   [] ~=? tareasBasicasQueDependenDe "b" tarea2,
-  [] ~=? tareasBasicasQueDependenDe "b" tarea6, --lo hicimos nosotros 
+  [] ~=? tareasBasicasQueDependenDe "b" tarea6,  
   [tarea2] ~=? tareasBasicasQueDependenDe "d" tarea6,
   [] ~=? tareasBasicasQueDependenDe "b" tarea5,
-  [tarea2,tarea3] ~=? tareasBasicasQueDependenDe "d" tarea5
+  [tarea2,tarea3] ~=? tareasBasicasQueDependenDe "d" tarea5,
+  [tarea2,tarea3,tarea2,tarea3] ~=? tareasBasicasQueDependenDe "d" tarea12,
+  [] ~=? tareasBasicasQueDependenDe "h" tarea12,
+  [] ~=? tareasBasicasQueDependenDe "b" tarea12,
+  [tarea2,tarea3,tarea4] ~=? tareasBasicasQueDependenDe "a" tarea11
   ]
 
 testsEj5 = test [
@@ -177,5 +204,6 @@ testsEj6 = test [
   5 ~=? pasos 10 sumas1 5,
   2 ~=? pasos 10 sumas3 7,
   1 ~=? pasos 2 sumas1 1,
+  10 ~=? pasos 1024 mult2 1,
   30 ~=? pasos 60 sumas123 0
   ]
