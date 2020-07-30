@@ -166,9 +166,7 @@ testsEj3 = test [
   (Independientes tarea4 (Independientes tarea3 (Independientes tarea2 tarea1))) ~=? chauListas (reverse lista6),
   (Independientes tarea1 tarea5) ~=? chauListas lista3,
   (Independientes tarea1 (Independientes tarea2 (Independientes tarea3 tarea4))) ~=? chauListas (concat [lista1,lista2]),
-  (Independientes tarea1 (Independientes tarea2 (Independientes tarea3 tarea4))) ~=? chauListas (reverse (concat [lista1,lista2])),
-  DependeDe (Independientes (Independientes tarea2 tarea3) (Independientes tarea1 tarea1)) tarea4 3 ~=? chauListas (reverse (concat [lista1,lista3]))
-
+  (Independientes tarea4 (Independientes tarea3 (Independientes tarea2 tarea1))) ~=? chauListas (reverse (concat [lista1,lista2]))
   ]
 
 testsEj4 = test [
