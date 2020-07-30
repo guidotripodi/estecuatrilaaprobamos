@@ -76,14 +76,14 @@ tareasBasicasQueDependenDe n = recTarea (\s n -> []) (const $ const (++)) (\t1 t
 
 -- cuelloDeBotella
 cuelloDeBotella :: Tarea -> String
-cuelloDeBotella t1 =  nombreDeTarea (fst (head (sortBy (\x y -> compare (snd y) (snd x)) (listaDependientesTupla t1))))
+cuelloDeBotella t1 =  nombre (fst (head (sortBy (\x y -> compare (snd y) (snd x)) (listaDependientesTupla t1))))
 --
 listaDependientesTupla :: Tarea -> [(Tarea, Int)]
-listaDependientesTupla t1 = map (\x-> (x, length ( tareasBasicasQueDependenDe (nombreDeTarea x) t1))) (tareasBasicas t1)
+listaDependientesTupla t1 = map (\x-> (x, length ( tareasBasicasQueDependenDe (nombre x) t1))) (tareasBasicas t1)
 
 
-nombreDeTarea :: Tarea -> String
-nombreDeTarea tarea = case tarea of Basica a b -> a
+nombre :: Tarea -> String
+nombre tarea = case tarea of Basica a b -> a
                              Independientes t1 t2 -> []
                              DependeDe t1 t2 n -> []
 
@@ -163,8 +163,8 @@ testsEj3 = test [
   tarea7 ~=? chauListas lista2,
   tarea8 ~=? chauListas lista3,
   (Independientes tarea1 (Independientes tarea2 (Independientes tarea3 tarea4))) ~=? chauListas lista6,
-  (Independientes tarea4 (Independientes tarea3 (Independientes tarea2 tarea1))) ~=? chauListas (reverse lista6)
-  (Independientes tarea1 tarea5) ~=? chauListas lista8,
+  (Independientes tarea4 (Independientes tarea3 (Independientes tarea2 tarea1))) ~=? chauListas (reverse lista6),
+  (Independientes tarea1 tarea5) ~=? chauListas lista3,
   (Independientes tarea1 (Independientes tarea2 (Independientes tarea3 tarea4))) ~=? chauListas (concat [lista1,lista2]),
   (Independientes tarea1 (Independientes tarea2 (Independientes tarea3 tarea4))) ~=? chauListas (reverse (concat [lista1,lista2])),
   DependeDe (Independientes (Independientes tarea2 tarea3) (Independientes tarea1 tarea1)) tarea4 3 ~=? chauListas (reverse (concat [lista1,lista3]))
