@@ -76,11 +76,16 @@ tareasBasicasQueDependenDe n = recTarea (\s n -> []) (const $ const (++)) (\t1 t
 
 -- cuelloDeBotella
 cuelloDeBotella :: Tarea -> String
-cuelloDeBotella t1 =  nombre (fst (head (sortBy (\x y -> compare (snd y) (snd x)) (listaDependientesTupla t1))))
+-- cuelloDeBotella t1 =  nombre (fst (head (sortBy (\x y -> compare (snd y) (snd x)) (listaDependientesTupla t1))))
 -- cuelloDeBotella t1 =  nombre ( fst ( mejorSegun (\x y -> (snd x) > (snd y)) (listaDependientesTupla t1) ))
+cuelloDeBotella t1 = nombre (mejorSegun (tieneMasTareasDependientesEn t1) (tareasBasicas t1))
 --
+
 listaDependientesTupla :: Tarea -> [(Tarea, Int)]
 listaDependientesTupla t1 = map (\x-> (x, length ( tareasBasicasQueDependenDe (nombre x) t1))) (tareasBasicas t1)
+
+tieneMasTareasDependientesEn t1 t2 t3 = let f = (cantidadTareasDependientesEn t1) in (f t2) > (f t1) 
+cantidadTareasDependientesEn t1 x = length (tareasBasicasQueDependenDe (nombre x) t1)
 
 mejorSegun :: (a -> a -> Bool) -> [a] -> a
 mejorSegun _ [x] = x
