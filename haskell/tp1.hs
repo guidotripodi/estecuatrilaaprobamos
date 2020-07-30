@@ -84,7 +84,10 @@ cuelloDeBotella t1 = nombre (mejorSegun (tieneMasTareasDependientesEn t1) (tarea
 listaDependientesTupla :: Tarea -> [(Tarea, Int)]
 listaDependientesTupla t1 = map (\x-> (x, length ( tareasBasicasQueDependenDe (nombre x) t1))) (tareasBasicas t1)
 
+tieneMasTareasDependientesEn :: Tarea -> Tarea -> Tarea -> Bool
 tieneMasTareasDependientesEn t1 t2 t3 = let f = (cantidadTareasDependientesEn t1) in (f t2) > (f t1) 
+
+cantidadTareasDependientesEn :: Tarea -> Tarea -> Int
 cantidadTareasDependientesEn t1 x = length (tareasBasicasQueDependenDe (nombre x) t1)
 
 mejorSegun :: (a -> a -> Bool) -> [a] -> a
@@ -204,7 +207,7 @@ testsEj4 = test [
 testsEj5 = test [
   "a" ~=? cuelloDeBotella tarea1,
   "d" ~=? cuelloDeBotella tarea5,
-  "b" ~=? cuelloDeBotella tarea7,
+  "d" ~=? cuelloDeBotella tarea7,
   "d" ~=? cuelloDeBotella tarea8
   ]
 
