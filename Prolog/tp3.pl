@@ -80,16 +80,16 @@ distanciaVecinas(M, I1, I2,N):- member(ruta(I1,I2,N),M).
 
 % caminoSimple(+M, +O, +D, -C) 
 
-caminoSimple(M, O,D,C):- caminoSimpleAux(M,O,[D],C).
+caminoSimple(M, O,D,C):- caminoSimpleParcial(M,O,[D],C). 
 
-caminoSimpleAux(_,O,[O|C1],[O|C1]).
-caminoSimpleAux(M,O,[Y|C1],C) :-vecina(M,X,Y),not(member(X,[Y|C1])),caminoSimpleAux(M,O,[X,Y|C1],C).
+caminoSimpleParcial(_,O,[O|C1],[O|C1]).
+caminoSimpleParcial(M,O,[Y|C1],C) :-vecina(M,X,Y),not(member(X,[Y|C1])),caminoSimpleParcial(M,O,[X,Y|C1],C).
 
 vecina(M,X, Y):- member(ruta(X,Y,_),M).
 
 %Es reversible en O y D ya que toma la "cabeza" de la lista como elemento Origen 
 %y el final de la lista como elemento Destino 
-%No es reversible en Mapa ya que en la primer clausula tiene infinitas soluciones posibles de M
+%No es reversible en Mapa ya que tiene infinitas soluciones posibles de M
 % y por lo tanto se cuelga
 
 %%% EJERCICIO 5 
@@ -140,9 +140,12 @@ caminoMasCorto(M,O,D,C):- camino(M, O, D, C1, D1), distanciaTotal(M,C,DIS), C1 \
 
 %Si en DIS colocamos el valor del camino , se buscara el camino con dicha distancia, no es reversible 
 %en M ya que caminoSimple tampoco lo es en M por ende se cuelga ya que encuentra infinitos caminos posibles
-%Idem si colocamos el camino, nos devolvera la distancia correspondiente., si colocamos tanto camino
-% como distancia intentara unificar y encontrar valido dicho camino, retornando true o false.
-
+%Si C viene instanciada, nos devolvera la distancia correspondiente., si viene C y D instanciados
+% intentara unificar y encontrar valido dicho camino, retornando true o false.
+%- Si C viene instanciado y el origen "O" y destino "D" no, se instanciara el origen con la "cabeza"
+% de la lista del camino, y D con el ultimo elemento de la lista del camino.
+%Si solo viene instanciado C y M, se instancian O y D como mencionamos anteriormente, y 
+%calcula la distancia de dicho camino instanciando el resultado en D.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TESTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
