@@ -70,22 +70,24 @@ tareasBasicasIniciales = foldTarea (\x n-> [Basica x n]) (\t1 t2-> t1++t2) (\t1 
 
 tareasBasicasQueDependenDe :: String -> Tarea -> [Tarea]
 tareasBasicasQueDependenDe n = recTarea (\s n -> []) (const $ const (++)) (\t1 t2 rec1 rec2 h -> if esSubTareaDe n t2 then (tareasBasicas t1) ++ rec2 else rec1)
+-- ESTA QUEDARIA COPADO MANDAR A UN WHERE LO ULTIMO PARA QUE NO HAYA QUE MOVER TANTO EL CURSOR PERO ES MEDIO UNA BOLUDES
 -- en este podriamos poner un where para el segundo caso que nos quedo bastante largo por el if
 
 -- Ejercicio 5
 
 -- cuelloDeBotella
-cuelloDeBotella :: Tarea -> String
--- cuelloDeBotella t1 =  nombre (fst (head (sortBy (\x y -> compare (snd y) (snd x)) (listaDependientesTupla t1))))
--- cuelloDeBotella t1 =  nombre ( fst ( mejorSegun (\x y -> (snd x) > (snd y)) (listaDependientesTupla t1) ))
-cuelloDeBotella t1 = nombre (mejorSegun' (tieneMasTareasDependientesEn t1) (tareasBasicas t1))
---
 
-listaDependientesTupla :: Tarea -> [(Tarea, Int)]
-listaDependientesTupla t1 = map (\x-> (x, length ( tareasBasicasQueDependenDe (nombre x) t1))) (tareasBasicas t1)
+--cuelloDeBotella :: Tarea -> String
+--cuelloDeBotella t1 = nombre (fst (head (sortBy (\x y -> compare (snd y) (snd x)) (listaDependientesTupla t1))))
+--
+--listaDependientesTupla :: Tarea -> [(Tarea, Int)]
+--listaDependientesTupla t1 = map (\x-> (x, length ( tareasBasicasQueDependenDe (nombre x) t1))) (tareasBasicas t1)
+
+cuelloDeBotella :: Tarea -> String
+cuelloDeBotella t1 = nombre (mejorSegun (tieneMasTareasDependientesEn t1) (tareasBasicas t1))
 
 tieneMasTareasDependientesEn :: Tarea -> Tarea -> Tarea -> Bool
-tieneMasTareasDependientesEn t1 t2 t3 = let f = (cantidadTareasDependientesEn t1) in (f t2) > (f t1) 
+tieneMasTareasDependientesEn t1 t2 t3 = let f = (cantidadTareasDependientesEn t1) in (f t2) > (f t3)
 
 cantidadTareasDependientesEn :: Tarea -> Tarea -> Int
 cantidadTareasDependientesEn t1 x = length (tareasBasicasQueDependenDe (nombre x) t1)
@@ -93,14 +95,8 @@ cantidadTareasDependientesEn t1 x = length (tareasBasicasQueDependenDe (nombre x
 maxSegun :: (a -> a -> Bool) -> a -> a -> a
 maxSegun esMejor x y = if esMejor x y then x else y
 
-mejorSegun' :: (a -> a -> Bool) -> [a] -> a
-mejorSegun' esMejor = foldr1 (maxSegun esMejor)
-
 mejorSegun :: (a -> a -> Bool) -> [a] -> a
-mejorSegun _ [x] = x
-mejorSegun esMejor (x:xs) =
-           let m = mejorSegun esMejor xs
-           in if esMejor x m then x else m
+mejorSegun esMejor = foldr1 (maxSegun esMejor)
 
 nombre :: Tarea -> String
 nombre tarea = case tarea of Basica a b -> a
@@ -214,7 +210,8 @@ testsEj5 = test [
   "a" ~=? cuelloDeBotella tarea1,
   "d" ~=? cuelloDeBotella tarea5,
   "d" ~=? cuelloDeBotella tarea7,
-  "d" ~=? cuelloDeBotella tarea8
+  "d" ~=? cuelloDeBotella tarea8,
+  "d" ~=? cuelloDeBotella tarea10
   ]
 
 
