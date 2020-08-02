@@ -50,8 +50,7 @@ tareasMasLargas h = filter (\x -> h < cantidadMaxima x)
 
 -- chauListas
 chauListas :: [Tarea] -> Tarea
-chauListas = foldr1 Independientes -- este lo puse como dijo ella, no sabia que funcionaba asi tambien
-
+chauListas = foldr1 Independientes 
 -- Ejercicio 4
 
 -- tareasBasicas
@@ -70,27 +69,19 @@ tareasBasicasIniciales = foldTarea (\x n-> [Basica x n]) (\t1 t2-> t1++t2) (\t1 
 
 tareasBasicasQueDependenDe :: String -> Tarea -> [Tarea]
 tareasBasicasQueDependenDe n = recTarea (\s n -> []) (const $ const (++)) (\t1 t2 rec1 rec2 h -> if esSubTareaDe n t2 then (tareasBasicas t1) ++ rec2 else rec1)
--- ESTA QUEDARIA COPADO MANDAR A UN WHERE LO ULTIMO PARA QUE NO HAYA QUE MOVER TANTO EL CURSOR PERO ES MEDIO UNA BOLUDES
--- en este podriamos poner un where para el segundo caso que nos quedo bastante largo por el if
 
 -- Ejercicio 5
 
 -- cuelloDeBotella
 
---cuelloDeBotella :: Tarea -> String
---cuelloDeBotella t1 = nombre (fst (head (sortBy (\x y -> compare (snd y) (snd x)) (listaDependientesTupla t1))))
---
---listaDependientesTupla :: Tarea -> [(Tarea, Int)]
---listaDependientesTupla t1 = map (\x-> (x, length ( tareasBasicasQueDependenDe (nombre x) t1))) (tareasBasicas t1)
-
 cuelloDeBotella :: Tarea -> String
-cuelloDeBotella t1 = nombre (mejorSegun (tieneMasTareasDependientesEn t1) (tareasBasicas t1))
+cuelloDeBotella t1 = nombreDeTarea (mejorSegun (tieneMasTareasDependientesEn t1) (tareasBasicas t1))
 
 tieneMasTareasDependientesEn :: Tarea -> Tarea -> Tarea -> Bool
 tieneMasTareasDependientesEn t1 t2 t3 = let f = (cantidadTareasDependientesEn t1) in (f t2) > (f t3)
 
 cantidadTareasDependientesEn :: Tarea -> Tarea -> Int
-cantidadTareasDependientesEn t1 x = length (tareasBasicasQueDependenDe (nombre x) t1)
+cantidadTareasDependientesEn t1 x = length (tareasBasicasQueDependenDe (nombreDeTarea x) t1)
 
 maxSegun :: (a -> a -> Bool) -> a -> a -> a
 maxSegun esMejor x y = if esMejor x y then x else y
@@ -98,10 +89,10 @@ maxSegun esMejor x y = if esMejor x y then x else y
 mejorSegun :: (a -> a -> Bool) -> [a] -> a
 mejorSegun esMejor = foldr1 (maxSegun esMejor)
 
-nombre :: Tarea -> String
-nombre tarea = case tarea of Basica a b -> a
-                             Independientes t1 t2 -> []
-                             DependeDe t1 t2 n -> []
+nombreDeTarea :: Tarea -> String
+nombreDeTarea tarea = case tarea of Basica a b -> a
+                                    Independientes t1 t2 -> []
+                                    DependeDe t1 t2 n -> []
 
 -- Ejercicio 6
 
